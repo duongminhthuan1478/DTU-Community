@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">DTU-Community</string>
+
+    <string name="drawer_close">Drawer Close</string>
+
+    <string name="drawer_open">Drawer Open</string>
+</resources>

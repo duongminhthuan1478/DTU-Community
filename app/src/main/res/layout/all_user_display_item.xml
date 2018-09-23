@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- item display users when search friend-->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="10dp"
+    android:background="@color/color_profile">
+    
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/all_user_profile_image"
+        android:layout_width="85dp"
+        android:layout_height="85dp"
+        android:layout_marginLeft="10dp"
+        android:src="@drawable/profile"/>
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_margin="5dp">
+
+        <TextView
+            android:id="@+id/all_user_profile_fullname"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="User fullname"
+            android:textColor="@android:color/white"
+            android:textAlignment="textStart"
+            android:textSize="18sp"
+            android:textStyle="bold"/>
+        <TextView
+            android:id="@+id/all_user_profile_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Status"
+            android:textColor="@android:color/darker_gray"
+            android:textAlignment="textStart"
+            android:textSize="16sp"/>
+
+    </LinearLayout>
+
+</LinearLayout>

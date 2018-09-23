@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "859435576285",
+    "firebase_url": "https://dtu-community.firebaseio.com",
+    "project_id": "dtu-community",
+    "storage_bucket": "dtu-community.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:859435576285:android:fdbd60a53b287570",
+        "android_client_info": {
+          "package_name": "com.example.tunguyencomputer.dtu_community"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "859435576285-o5gf15boocoetf976m03ufv5obidqp3h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.tunguyencomputer.dtu_community",
+            "certificate_hash": "3cffd37f2d38db5335c0819eaff773fb265a10f0"
+          }
+        },
+        {
+          "client_id": "859435576285-4phlv4t9a7ftch4qblj7s8otkd5gilsa.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUkZBsOA3yKvLDqLf4BJTgrvwnOXG13dk"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "859435576285-4phlv4t9a7ftch4qblj7s8otkd5gilsa.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
