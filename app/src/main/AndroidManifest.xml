@@ -39,8 +39,11 @@
         </activity>
         <activity android:name=".ProfileActivity">
         </activity>
-        <activity android:name=".FindFriendActivity"
+        <activity
+            android:name=".FindFriendActivity"
             android:parentActivityName=".MainActivity">
+        </activity>
+        <activity android:name=".CommentsActivity">
         </activity>
     </application>
 

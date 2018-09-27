@@ -2,7 +2,6 @@ package com.example.tunguyencomputer.dtu_community;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -11,7 +10,6 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,7 +20,6 @@ import android.widget.TextView;
 import com.example.tunguyencomputer.dtu_community.Account.LoginActivity;
 import com.example.tunguyencomputer.dtu_community.Account.SettingActivity;
 import com.example.tunguyencomputer.dtu_community.Account.SetupActivity;
-import com.example.tunguyencomputer.dtu_community.Adapter.PostAdapter;
 import com.example.tunguyencomputer.dtu_community.Model.Post;
 import com.example.tunguyencomputer.dtu_community.Ultil.ShowToast;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
@@ -57,21 +54,18 @@ public class MainActivity extends AppCompatActivity {
     private TextView mNavProfileFullNameText;
     private ImageButton mAddNewPostImgButton;
 
-
     /** Xác nhận người dùng **/
     private FirebaseAuth mFirebaseAuth;
     //create database
     private FirebaseDatabase mFirebaseDatabase;
     // Đối tượng tham chiếu đến một phần cụ thể của Database , trong trường hợp này là User
-    private DatabaseReference mUserDatabaseRef, mPostDatabaseRef;
-
-    /** Classes implementing this interface can be used to
-     * receive events about changes in the child locations of a given DatabaseReference ref */
-    //private ChildEventListener mChildEventListener;
+    private DatabaseReference mUserDatabaseRef, mPostDatabaseRef, mLikeDatabaseRef;
 
     private String mCurrentUserID;
-
     private  FirebaseRecyclerAdapter<Post, PostViewHolder> mPostFirebaseRecyclerAdapter;
+
+    // Biến kiểm tra người dùng đã like post hay chưa
+    boolean likeChecker = false;
 
 
 
@@ -125,6 +119,7 @@ public class MainActivity extends AppCompatActivity {
         // Node cha chứa các Users
         mUserDatabaseRef = mFirebaseDatabase.getReference().child("Users");
         mPostDatabaseRef = mFirebaseDatabase.getReference().child("Posts");
+        mLikeDatabaseRef = mFirebaseDatabase.getReference().child("Likes");
 
         // tham chiếu đến con của node Users với các user cụ thể với ID
         // để lấy hình ảnh và username từ firebase hiển thị lên navigation header
@@ -264,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 protected void onBindViewHolder(@NonNull PostViewHolder holder, int position,
                         @NonNull Post model) {
-
+                    // key (tên node) hiện tại
                     final String postKey = getRef(position).getKey();
                     holder.setFullName(model.getFullName());
                     holder.setTime(model.getTime());
@@ -272,6 +267,9 @@ public class MainActivity extends AppCompatActivity {
                     holder.setDescription(model.getDescription());
                     holder.setPostImage(model.getPostimage());
                     holder.setProfileImage(model.getProfileimage());
+
+                    /** Xử lý đếm like và thay đổi trạng thái like-dislike khi người dùng click*/
+                    holder.setLikeButtonStatus(postKey);
 
 
                     // Send người dùng đến ClickPostActivity tại vị trí click
@@ -282,6 +280,50 @@ public class MainActivity extends AppCompatActivity {
                             // Gửi tất cả dữ liệu (image , description) cùng key để ClickPostActivity  có thể nhận
                             intent.putExtra("PostKey", postKey);
                             startActivity(intent);
+                        }
+                    });
+
+                    // Click Like Imagebutton
+                    holder.likePostButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            // Khi click like , checker = true
+                            likeChecker = true;
+                            mLikeDatabaseRef.addValueEventListener(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    // Ref đến tên bài post
+                                    if(likeChecker == true){
+                                        /** postKey: vị trí bài post cụ thể, nếu có child của người dùng hiện tại rồi
+                                         * có nghĩa rằng người dùng đã like , -> removalue
+                                         * nếu chưa có thì set value(mCurrentUserID) = true (dã like)*/
+                                        if(dataSnapshot.child(postKey).hasChild(mCurrentUserID)){
+                                            mLikeDatabaseRef.child(postKey).child(mCurrentUserID).removeValue();
+                                            likeChecker = false;
+                                        } else {
+                                            mLikeDatabaseRef.child(postKey).child(mCurrentUserID).setValue(true);
+                                            likeChecker = false;
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                }
+                            });
+
+                        }
+                    });
+
+                    // Click Post ImageButton
+                    holder.commentPostButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent intentComment = new Intent(MainActivity.this, CommentsActivity.class);
+                            // Gửi tất cả dữ liệu (image , description) cùng key để ClickPostActivity  có thể nhận
+                            intentComment.putExtra("PostKey", postKey);
+                            startActivity(intentComment);
                         }
                     });
 
@@ -300,13 +342,48 @@ public class MainActivity extends AppCompatActivity {
         }
 
     public static class PostViewHolder extends RecyclerView.ViewHolder{
-
         View mView;
+
+        ImageButton likePostButton, commentPostButton;
+        TextView numberOfLike;
+        int countLikes;
+        String currentUserID;
+        DatabaseReference likeRef;
 
 
         public PostViewHolder(View itemView) {
             super(itemView);
             mView = itemView;
+            likePostButton = mView.findViewById(R.id.like_image_button);
+            commentPostButton = mView.findViewById(R.id.comment_image_button);
+            numberOfLike = mView.findViewById(R.id.number_of_like_text);
+
+            likeRef = FirebaseDatabase.getInstance().getReference().child("Likes");
+            currentUserID  = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        }
+
+        public void setLikeButtonStatus(final String postKEy){
+            likeRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    // Nếu bài post (key) có user đó rồi, đếm ra hiển thị
+                    if(dataSnapshot.child(postKEy).hasChild(currentUserID)){
+                        /**ChildrendCount số node tương ứng */
+                        countLikes = (int) dataSnapshot.child(postKEy).getChildrenCount();
+                        likePostButton.setImageResource(R.drawable.like);
+                        numberOfLike.setText(String.valueOf(countLikes));
+                    }else {
+                        countLikes = (int) dataSnapshot.child(postKEy).getChildrenCount();
+                        likePostButton.setImageResource(R.drawable.dislike);
+                        numberOfLike.setText(String.valueOf(countLikes));
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
         }
         public void setFullName(String name) {
             TextView userName = mView.findViewById(R.id.post_full_name);
@@ -405,7 +482,6 @@ public class MainActivity extends AppCompatActivity {
         Intent Intent = new Intent(MainActivity.this, FindFriendActivity.class);
         startActivity(Intent);
     }
-
 
 
 }
