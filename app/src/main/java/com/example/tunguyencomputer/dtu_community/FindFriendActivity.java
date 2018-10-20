@@ -1,5 +1,6 @@
 package com.example.tunguyencomputer.dtu_community;
 
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -63,9 +64,7 @@ public class FindFriendActivity extends AppCompatActivity {
     private void searchPeople(String searchStringInput) {
         ShowToast.showToast(this,"Searching....");
 
-        Query query = mAllUserDatabaseRef.orderByChild("fullname")
-                .startAt(searchStringInput)
-                .endAt(searchStringInput + "\uf8ff");
+        Query query = mAllUserDatabaseRef.orderByChild("fullname").startAt(searchStringInput).endAt(searchStringInput + "\uf8ff");
         FirebaseRecyclerOptions<FindFriend> options =
                 new FirebaseRecyclerOptions.Builder<FindFriend>()
                         .setQuery(query, FindFriend.class)
@@ -75,11 +74,27 @@ public class FindFriendActivity extends AppCompatActivity {
 
 
             @Override
-            protected void onBindViewHolder(@NonNull FindFriendViewHoder holder, int position,
+            protected void onBindViewHolder(@NonNull FindFriendViewHoder holder, final int position,
                     @NonNull FindFriend model) {
                 holder.setProfileimage(model.getProfileimage());
                 holder.setFullname(model.getFullname());
                 holder.setStatus(model.getStatus());
+
+                /** Khi click vào vị trí cụ thể user của  result find friends
+                 * visit_user_id: nhận key được lưu bằng (uid) của người dùng và gửi sang PersonProfileActivity
+                 * để vào chính node của người dùng đó , lấy thông tin user ra
+                 * */
+                holder.mView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+
+                    public void onClick(View v) {
+                        String visit_user_id = getRef(position).getKey();
+
+                        Intent profileIntent = new Intent(FindFriendActivity.this, PersonProfileActivity.class);
+                        profileIntent.putExtra("visit_user_id", visit_user_id);
+                        startActivity(profileIntent);
+                    }
+                });
             }
 
             @NonNull

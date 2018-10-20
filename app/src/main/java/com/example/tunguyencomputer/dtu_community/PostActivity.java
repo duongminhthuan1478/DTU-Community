@@ -4,12 +4,10 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -32,11 +30,13 @@ import com.google.firebase.storage.UploadTask;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.logging.SimpleFormatter;
 
 public class PostActivity extends AppCompatActivity {
 
     private final static int GALLERY_PICK_REQUEST = 1;
+
+    /** Đếm số lượng post */
+    private long countPosts;
 
     /** Khai báo biến để lấy link hình ảnh khi người dùng click chọn hình ảnh */
     private Uri mImageUri;
@@ -61,6 +61,8 @@ public class PostActivity extends AppCompatActivity {
     private Uri mDowloadUrl;
 
     String userFullName, userProfileImage;
+
+
 
 
 
@@ -160,22 +162,50 @@ public class PostActivity extends AppCompatActivity {
             mProgressDialogLoadingBar.show();
             mProgressDialogLoadingBar.setCanceledOnTouchOutside(true);
 
-            storingImageToFirebaseStorage();
+            checkNumberOfPost();
+            storingImageToFirebaseStorageAndSavingPostToDatabase();
+
+
         }
     }
 
+    /** Hàm kiểm tra số lượng của post và lấy tổng số post(node) lưu trữ trong biến
+     * toàn phần countPosts, mỗi lần update 1 post countPosts đếm sẽ tăng lên 1 và lưu vào
+     * để MainActivity có thể sắp xếp Query trong adapter theo "counter" giảm dần để hiển thị*/
+    private void checkNumberOfPost() {
+        mPostDatabaseRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()){
+                    // Đếm số lượng node trong child (post)
+                    countPosts = dataSnapshot.getChildrenCount();
+                } else {
+                    countPosts = 0;
+                }
+            }
 
-    private void storingImageToFirebaseStorage() {
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    /** lưu hình ảnh đến thư mục (Post Images) và sau đó tải string url của ảnh đó về
+     * lưu dữ liệu liên quan đến bài post vào hashmap và đẩy lên Firebase với node(Post) */
+    private void storingImageToFirebaseStorageAndSavingPostToDatabase() {
 
         // Date
         Calendar calForDate =  Calendar.getInstance();
         SimpleDateFormat currentDate = new SimpleDateFormat("dd-MMMM-yyyy");
         mSaveCurrentDate = currentDate.format(calForDate.getTime());
 
-        // Time
+        // Time, seconds
         Calendar calForTime =  Calendar.getInstance();
-        SimpleDateFormat currentTime = new SimpleDateFormat("HH:mm");
+        SimpleDateFormat currentTime = new SimpleDateFormat("HH:mm:ss");
         mSaveCurrentTime = currentTime.format(calForTime.getTime());
+
+
 
         /** Tạo một biến để lấy thời gian, ngày hiện tại khi người dùng đăng ảnh để tránh tên hình ảnh bị
          * trùng lặp tên, biến này cũng được dùng để lưu bài post */
@@ -200,6 +230,7 @@ public class PostActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<Uri> task) {
                 if(task.isSuccessful()){
                     mDowloadUrl = task.getResult();
+
                     mUserDatabaseRef.child(mCurrentUserID).addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -207,7 +238,9 @@ public class PostActivity extends AppCompatActivity {
                                 userFullName = dataSnapshot.child("fullname").getValue().toString();
                                 userProfileImage = dataSnapshot.child("profileimage").getValue().toString();
 
-
+                                /** Biến counter: chứa tổng số post để sắp xếp post mới lên đầu
+                                 * trước khi update 1 new post checkNumberOfPost() sẽ get tổng số node (post)
+                                 * và đưa vào countPosts để dễ dàng sắp xếp */
                                 final HashMap postMap = new HashMap();
                                 postMap.put("uid", mCurrentUserID);
                                 postMap.put("date", mSaveCurrentDate);
@@ -216,6 +249,7 @@ public class PostActivity extends AppCompatActivity {
                                 postMap.put("postimage", mDowloadUrl.toString());
                                 postMap.put("fullname", userFullName);
                                 postMap.put("profileimage", userProfileImage);
+                                postMap.put("counter", countPosts);
 
 
                                 Thread thread = new Thread() {
@@ -258,13 +292,5 @@ public class PostActivity extends AppCompatActivity {
         startActivity(mainActivity);
         finish();
     }
-
-
-
-
-
-
-
-
 
 }

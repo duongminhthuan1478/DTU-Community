@@ -36,7 +36,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private Button mLoginButton;
     private EditText mUserEmail, mUserPassword;
-    private TextView mCreateAccountLink;
+    private TextView mCreateAccountLink, mForgetPasswordLink;
     private FirebaseAuth mAuth;
     private ImageView mGoogleSignInBtn;
 
@@ -58,6 +58,14 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        mForgetPasswordLink.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(LoginActivity.this, ResetPasswordActivity.class));
+            }
+        });
+
         mAuth = FirebaseAuth.getInstance();
 
         mLoginButton.setOnClickListener(new View.OnClickListener() {
@@ -135,6 +143,7 @@ public class LoginActivity extends AppCompatActivity {
         mUserPassword = (EditText) findViewById(R.id.login_password);
         mLoginButton = (Button) findViewById(R.id.login_button);
         mGoogleSignInBtn = (ImageView) findViewById(R.id.google_signin_btn);
+        mForgetPasswordLink = (TextView) findViewById(R.id.forget_password_link_text);
 
     }
 

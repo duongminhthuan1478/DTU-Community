@@ -222,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case R.id.navigation_friends:
-                ShowToast.showToast(this, "friends");
+                sendUserToFriendActivity();
                 break;
 
             case R.id.navigation_find_friends:
@@ -230,7 +230,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case R.id.navigation_message:
-                ShowToast.showToast(this, "Messages");
+                sendUserToFriendActivity();
                 break;
 
             case R.id.navigation_setting:
@@ -247,10 +247,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void displayAllUserPosts() {
-            Query query = mPostDatabaseRef;
+            /** Biến counter dữ tổng số lượng bài post
+             * vì vậy orderByChild(counter) sẽ sắp xếp counter tăng dần ,
+             *  sau khi thiết lập layout hiển thị đảo ngược là setReverseLayout, setStackFromEnd
+             *  vậy nên counter sẽ được đảo ngược lại là giảm dần , new post hiển thị lên top*/
+            Query querySortPostOrder = mPostDatabaseRef.orderByChild("counter");
             FirebaseRecyclerOptions<Post> options =
                     new FirebaseRecyclerOptions.Builder<Post>()
-                            .setQuery(query, Post.class)
+                            .setQuery(querySortPostOrder, Post.class)
                             .build();
 
             mPostFirebaseRecyclerAdapter = new FirebaseRecyclerAdapter<Post, PostViewHolder>(options) {
@@ -261,6 +265,7 @@ public class MainActivity extends AppCompatActivity {
                         @NonNull Post model) {
                     // key (tên node) hiện tại
                     final String postKey = getRef(position).getKey();
+
                     holder.setFullName(model.getFullName());
                     holder.setTime(model.getTime());
                     holder.setDate(model.getDate());
@@ -480,6 +485,10 @@ public class MainActivity extends AppCompatActivity {
     }
     private void sendUserToFindFriendActivity() {
         Intent Intent = new Intent(MainActivity.this, FindFriendActivity.class);
+        startActivity(Intent);
+    }
+    private void sendUserToFriendActivity() {
+        Intent Intent = new Intent(MainActivity.this, FriendActivity.class);
         startActivity(Intent);
     }
 
