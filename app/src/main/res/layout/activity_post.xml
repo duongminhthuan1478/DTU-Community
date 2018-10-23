@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".PostActivity"
+    tools:context=".Post.PostActivity"
     android:background="@android:color/white"
     >
 
@@ -49,6 +49,4 @@
         android:textSize="18sp"
         android:textColor="@android:color/white"
         />
-
-
 </RelativeLayout>

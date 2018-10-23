@@ -21,12 +21,14 @@ import com.example.tunguyencomputer.dtu_community.Account.LoginActivity;
 import com.example.tunguyencomputer.dtu_community.Account.SettingActivity;
 import com.example.tunguyencomputer.dtu_community.Account.SetupActivity;
 import com.example.tunguyencomputer.dtu_community.Model.Post;
+import com.example.tunguyencomputer.dtu_community.Post.ClickPostActivity;
+import com.example.tunguyencomputer.dtu_community.Post.CommentsActivity;
+import com.example.tunguyencomputer.dtu_community.Post.PostActivity;
 import com.example.tunguyencomputer.dtu_community.Ultil.ShowToast;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -35,8 +37,6 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 import de.hdodenhof.circleimageview.CircleImageView;
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 

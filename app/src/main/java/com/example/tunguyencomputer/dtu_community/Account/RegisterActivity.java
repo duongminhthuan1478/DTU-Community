@@ -9,6 +9,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 import com.example.tunguyencomputer.dtu_community.MainActivity;
 import com.example.tunguyencomputer.dtu_community.R;
 import com.example.tunguyencomputer.dtu_community.Ultil.ShowToast;
@@ -80,10 +81,8 @@ public class RegisterActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()){
-                            // Tạo tài khoản xong , đưa người dùng đến SetupActivity
-                            sendUserToSetupctivity();
-                            // Authentication successfuly
-                            ShowToast.showToast(getApplicationContext(), "Tạo tài khoản thành công , vui lòng cập nhập thông tin");
+                            // Xác thực email
+                            sendEmailVerificationMessage();
                             // bỏ qua loading bar nếu task xử lý xong
                             mProgressDialogLoadingBar.dismiss();
 
@@ -96,18 +95,33 @@ public class RegisterActivity extends AppCompatActivity {
                         }
                     }
                 });
-
         }
 
     }
 
-    private void sendUserToSetupctivity() {
-        Intent intent = new Intent(RegisterActivity.this, SetupActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-        // Đóng activity
-        finish();
+    /**  Xác thực email*/
+    private void sendEmailVerificationMessage(){
+        FirebaseUser user = mAuth.getCurrentUser();
+        if(user != null){
+            user.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if(task.isSuccessful()){
+                        // trả người dùng lại  login , khi người dùng login thành công đến MainActivity
+                        // Main sẽ kiểm tra nếu người dùng chưa có thông tin , sẽ dẫn đến Setup
+                        sendUserToLoginActivity();
+                        Toast.makeText(RegisterActivity.this, "Đăng ký thành công , vui lòng xác nhận email",Toast.LENGTH_LONG);
+                        mAuth.signOut();
+                    }
+                    else {
+                        ShowToast.showToast(getApplicationContext(),"Lỗi xảy ra: " + task.getException().getMessage());
+                        mAuth.signOut();
+                    }
+                }
+            });
+        }
     }
+
 
     private void findID() {
         mUserEmailEdt = (EditText) findViewById(R.id.register_email);
@@ -122,5 +136,10 @@ public class RegisterActivity extends AppCompatActivity {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
     }
-
+    private void sendUserToLoginActivity(){
+        Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        finish();
+    }
 }

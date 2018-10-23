@@ -34,9 +34,9 @@
         <activity
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
             android:theme="@style/Base.Theme.AppCompat"/>
-        <activity android:name=".PostActivity">
+        <activity android:name=".Post.PostActivity">
         </activity>
-        <activity android:name=".ClickPostActivity">
+        <activity android:name=".Post.ClickPostActivity">
         </activity>
         <activity
             android:name=".Account.SettingActivity"
@@ -48,7 +48,7 @@
             android:name=".FindFriendActivity"
             android:parentActivityName=".MainActivity">
         </activity>
-        <activity android:name=".CommentsActivity">
+        <activity android:name=".Post.CommentsActivity">
         </activity>
         <activity
             android:name=".Account.ResetPasswordActivity"
@@ -60,7 +60,11 @@
             android:name=".FriendActivity"
             android:parentActivityName=".MainActivity">
         </activity>
-        <activity android:name=".ChatActivity"
+        <activity
+            android:name=".ChatActivity"
+            android:parentActivityName=".MainActivity">
+        </activity>
+        <activity android:name=".Post.MyPostAcitivity"
             android:parentActivityName=".MainActivity">
         </activity>
     </application>

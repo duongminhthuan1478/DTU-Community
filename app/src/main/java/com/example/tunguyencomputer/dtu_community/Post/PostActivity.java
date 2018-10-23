@@ -1,4 +1,4 @@
-package com.example.tunguyencomputer.dtu_community;
+package com.example.tunguyencomputer.dtu_community.Post;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -14,6 +14,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
+import com.example.tunguyencomputer.dtu_community.MainActivity;
+import com.example.tunguyencomputer.dtu_community.R;
 import com.example.tunguyencomputer.dtu_community.Ultil.ShowToast;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;

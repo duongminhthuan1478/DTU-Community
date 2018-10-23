@@ -1,4 +1,4 @@
-package com.example.tunguyencomputer.dtu_community;
+package com.example.tunguyencomputer.dtu_community.Post;
 
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -11,10 +11,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.example.tunguyencomputer.dtu_community.Model.Comment;
-import com.example.tunguyencomputer.dtu_community.Model.Post;
+import com.example.tunguyencomputer.dtu_community.R;
 import com.example.tunguyencomputer.dtu_community.Ultil.ShowToast;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
@@ -161,7 +160,7 @@ public class CommentsActivity extends AppCompatActivity {
         }
         public void setProfileimage(String profileimage) {
             CircleImageView image = mView.findViewById(R.id.comment_profile);
-            Picasso.get().load(profileimage).into(image);
+            Picasso.get().load(profileimage).placeholder(R.drawable.profile).into(image);
         }
 
     }
