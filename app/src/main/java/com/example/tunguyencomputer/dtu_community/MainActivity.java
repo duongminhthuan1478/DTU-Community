@@ -37,10 +37,18 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 import de.hdodenhof.circleimageview.CircleImageView;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getName();
+
+    /** Hai biến thể hiện trạng thái khi user onl/off */
+    private static final String USER_ONLINE = "ONLINE";
+    private static final String USER_OFFLINE = "OFFLINE";
 
     /** Khai báo các View trong main activity */
     private NavigationView mNavigationView;
@@ -175,7 +183,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onStart() {
-        /** được kích hoạt khi ứng dụng chạy và check user authenticaiton*/
         super.onStart();
         FirebaseUser currentUser = mFirebaseAuth.getCurrentUser();
         if(currentUser == null){
@@ -189,12 +196,16 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+//    @Override
+//    protected void onStop() {
+//        super.onStop();
+//        updateUserState(USER_OFFLINE);
+//    }
+//
     @Override
-    protected void onStop() {
-        super.onStop();
-        mPostFirebaseRecyclerAdapter.stopListening();
-        mPostFirebaseRecyclerAdapter.onDetachedFromRecyclerView(mPostList);
-
+    protected void onDestroy() {
+        super.onDestroy();
+        updateUserState(USER_OFFLINE);
     }
 
     @Override
@@ -206,6 +217,26 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /** Check người dùng đang online hay offline*/
+    private void updateUserState(String state){
+        String saveCurrentDate, saveCurrentTime;
+
+        Calendar calForDate = Calendar.getInstance();
+        SimpleDateFormat currentDate = new SimpleDateFormat("MMMM dd");
+        saveCurrentDate = currentDate.format(calForDate.getTime());
+
+        Calendar calForTime = Calendar.getInstance();
+        SimpleDateFormat currentTime = new SimpleDateFormat("hh:mm");
+        saveCurrentTime = currentTime.format(calForTime.getTime());
+
+        Map currentUserState = new HashMap();
+        currentUserState.put("time", saveCurrentTime);
+        currentUserState.put("date", saveCurrentDate);
+        currentUserState.put("type", state);
+
+        mUserDatabaseRef.child(mCurrentUserID).child("userState").updateChildren(currentUserState);
+
+    }
 
     private void userMenuSelector(MenuItem item) {
         switch (item.getItemId()) {
@@ -240,6 +271,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.navigation_logout:
                 // đăng xuất người dùng khỏi firebase authentication
                 //mFirebaseAuth.signOut();
+
+                /** thiết lập người dùng ofline khi logout */
+                updateUserState(USER_OFFLINE);
                 mFirebaseAuth.getInstance().signOut();
                 sendUserToLoginActivity();
                 break;
@@ -344,7 +378,10 @@ public class MainActivity extends AppCompatActivity {
 
             };
             mPostList.setAdapter(mPostFirebaseRecyclerAdapter);
-        }
+
+            /** Khi người dùng vào Mainactivity và các post được hiển thị , thiết lập cho người dùng online */
+            updateUserState(USER_ONLINE);
+    }
 
     public static class PostViewHolder extends RecyclerView.ViewHolder{
         View mView;
@@ -427,10 +464,11 @@ public class MainActivity extends AppCompatActivity {
         final String current_User_ID = mFirebaseAuth.getCurrentUser().getUid();
 
         // Đọc dữ liệu và lắng nghe dữ liệu thay đổi dùng addValueEventListener()
-        mUserDatabaseRef.addValueEventListener(new ValueEventListener() {
+        mUserDatabaseRef.child(mCurrentUserID).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(!dataSnapshot.hasChild(current_User_ID)){
+                if(!(dataSnapshot.hasChild("username") && dataSnapshot.hasChild("fullname")
+                        && dataSnapshot.hasChild("profileimage") && dataSnapshot.hasChild("country"))){
                     sendUserToSetupActivity();
                 }
 

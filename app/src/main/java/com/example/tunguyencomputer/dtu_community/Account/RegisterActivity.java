@@ -110,7 +110,7 @@ public class RegisterActivity extends AppCompatActivity {
                         // trả người dùng lại  login , khi người dùng login thành công đến MainActivity
                         // Main sẽ kiểm tra nếu người dùng chưa có thông tin , sẽ dẫn đến Setup
                         sendUserToLoginActivity();
-                        Toast.makeText(RegisterActivity.this, "Đăng ký thành công , vui lòng xác nhận email",Toast.LENGTH_LONG);
+                        Toast.makeText(getApplicationContext(), "Đăng ký thành công , vui lòng đăng nhập email để xác nhận tài khoản ",Toast.LENGTH_LONG).show();
                         mAuth.signOut();
                     }
                     else {

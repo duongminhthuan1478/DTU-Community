@@ -12,6 +12,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import com.example.tunguyencomputer.dtu_community.Model.Friend;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
@@ -27,8 +28,16 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 import de.hdodenhof.circleimageview.CircleImageView;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 public class FriendActivity extends AppCompatActivity {
+
+    /** Hai biến thể hiện trạng thái khi user onl/off */
+    private static final String USER_ONLINE = "ONLINE";
+    private static final String USER_OFFLINE = "OFFLINE";
 
     private DatabaseReference mFriendDatabaseRef, mUserDatabaseRef;
     private FirebaseAuth mAuth;
@@ -61,12 +70,49 @@ public class FriendActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         mFriendFirebaseRecyclerAdapter.startListening();
+        updateUserState(USER_ONLINE);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateUserState(USER_ONLINE);
     }
 
     @Override
     protected void onStop() {
+        updateUserState(USER_OFFLINE);
+        /** Phương thức chạy khi người dùng rời khỏi chương trình (vd nhấn Home) */
         super.onStop();
         mFriendFirebaseRecyclerAdapter.stopListening();
+    }
+
+    @Override
+    protected void onDestroy() {
+        updateUserState(USER_OFFLINE);
+        super.onDestroy();
+    }
+
+
+    /** Check người dùng đang online hay offline*/
+    private void updateUserState(String state){
+        String saveCurrentDate, saveCurrentTime;
+
+        Calendar calForDate = Calendar.getInstance();
+        SimpleDateFormat currentDate = new SimpleDateFormat("MMM dd, yyyy");
+        saveCurrentDate = currentDate.format(calForDate.getTime());
+
+        Calendar calForTime = Calendar.getInstance();
+        SimpleDateFormat currentTime = new SimpleDateFormat("hh:mm a");
+        saveCurrentTime = currentTime.format(calForTime.getTime());
+
+        Map currentUserState = new HashMap();
+        currentUserState.put("time", saveCurrentTime);
+        currentUserState.put("date", saveCurrentDate);
+        currentUserState.put("type", state);
+
+        mUserDatabaseRef.child(mCurrentUserID).child("userState").updateChildren(currentUserState);
+
     }
 
 
@@ -93,6 +139,15 @@ public class FriendActivity extends AppCompatActivity {
                         if(dataSnapshot.exists()){
                             final String fullname = dataSnapshot.child("fullname").getValue().toString();
                             String profileimage = dataSnapshot.child("profileimage").getValue().toString();
+                            final String type;
+                            if(dataSnapshot.hasChild("userState")){
+                                type = dataSnapshot.child("userState").child("type").getValue().toString();
+                                if(type.equals(USER_ONLINE)){
+                                    holder.onlineStatusImage.setVisibility(View.VISIBLE);
+                                }else {
+                                    holder.onlineStatusImage.setVisibility(View.INVISIBLE);
+                                }
+                            }
 
                             //  Vì lấy ảnh và name theo từng vị trí từng người cụ thể nên không thể lấy từ model
                             // Lấy trực tiếp từ database
@@ -162,11 +217,14 @@ public class FriendActivity extends AppCompatActivity {
     }
 
     public static class FriendViewHolder extends RecyclerView.ViewHolder{
+
         View mView;
+        ImageView onlineStatusImage;
 
         public FriendViewHolder(View itemView) {
             super(itemView);
             mView = itemView;
+            onlineStatusImage = itemView.findViewById(R.id.all_user_online_icon);
         }
         public void setProfileimage(String profileimage) {
             CircleImageView imageView = mView.findViewById(R.id.all_user_profile_image);

@@ -38,8 +38,12 @@ import java.util.Map;
 
 public class ChatActivity extends AppCompatActivity {
 
+    /** Hai biến thể hiện trạng thái khi user onl/off */
+    private static final String USER_ONLINE = "ONLINE";
+    private static final String USER_OFFLINE = "OFFLINE";
+
     private FirebaseAuth mAuth;
-    private DatabaseReference mRootDatabaseRef;
+    private DatabaseReference mRootDatabaseRef, mUserDatabaseRef;
 
     private RecyclerView mMessageRecyclerView;
     private final List<Message> mMessageList = new ArrayList<>();
@@ -62,6 +66,8 @@ public class ChatActivity extends AppCompatActivity {
     private TextView mReceiverFullName;
     private CircleImageView mReiceiverProfileImage;
 
+    /** TextView hiển thị người dùng online/offline */
+    private TextView mUserOnlineOrOffLineText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +81,7 @@ public class ChatActivity extends AppCompatActivity {
         mMessageReceiverFullName  = getIntent().getExtras().getString("fullname").toString();
 
         mRootDatabaseRef = FirebaseDatabase.getInstance().getReference();
+        mUserDatabaseRef = FirebaseDatabase.getInstance().getReference().child("Users");
         mAuth = FirebaseAuth.getInstance();
         mMessageSenderID = mAuth.getCurrentUser().getUid();
 
@@ -90,9 +97,18 @@ public class ChatActivity extends AppCompatActivity {
         fetchMessages();
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        updateUserState(USER_OFFLINE);
+
+    }
 
 
     private void sendMessage() {
+        // Thiết lập trạng tháingười dùng online
+        updateUserState(USER_ONLINE);
+
         String messgaeText = mMessageInputEdt.getText().toString();
         // validation
         if(TextUtils.isEmpty(messgaeText)){
@@ -192,7 +208,7 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void displayReceiverInformation() {
-        /** hoder adapter FriendActivity đã vào đúng vị trí của user
+        /** hoder adapter từ FriendActivity đã vào đúng vị trí của user
          * vì vậy, chỉ cần gửi biến qua intent và setText cho name*/
         mReceiverFullName.setText(mMessageReceiverFullName);
         // Vào child Users và vào đúng child uid của intent đã được gửi để lấy ảnh hiển thị lên
@@ -202,6 +218,17 @@ public class ChatActivity extends AppCompatActivity {
                 if(dataSnapshot.exists()){
                     String profileimage = dataSnapshot.child("profileimage").getValue().toString();
                     Picasso.get().load(profileimage).into(mReiceiverProfileImage);
+
+                    // user Online/offline
+                    String type = dataSnapshot.child("userState").child("type").getValue().toString();
+                    String lastDate = dataSnapshot.child("userState").child("date").getValue().toString();
+                    String lastTime = dataSnapshot.child("userState").child("time").getValue().toString();
+
+                    if(type.equals(USER_ONLINE)){
+                        mUserOnlineOrOffLineText.setText("Online");
+                    }else {
+                        mUserOnlineOrOffLineText.setText("Hoạt động lúc " + lastTime + " " +  lastDate);
+                    }
                 }
             }
 
@@ -210,6 +237,28 @@ public class ChatActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    /** Check người dùng đang online hay offline*/
+    private void updateUserState(String state){
+        String saveCurrentDate, saveCurrentTime;
+
+        Calendar calForDate = Calendar.getInstance();
+        SimpleDateFormat currentDate = new SimpleDateFormat("MMM dd, yyyy");
+        saveCurrentDate = currentDate.format(calForDate.getTime());
+
+        Calendar calForTime = Calendar.getInstance();
+        SimpleDateFormat currentTime = new SimpleDateFormat("hh:mm a");
+        saveCurrentTime = currentTime.format(calForTime.getTime());
+
+        Map currentUserState = new HashMap();
+        currentUserState.put("time", saveCurrentTime);
+        currentUserState.put("date", saveCurrentDate);
+        currentUserState.put("type", state);
+
+        // CurrentUser = mMessageSenderID
+        mUserDatabaseRef.child(mMessageSenderID).child("userState").updateChildren(currentUserState);
+
     }
 
     private void actionBar() {
@@ -228,6 +277,7 @@ public class ChatActivity extends AppCompatActivity {
         mSendImageFileButton = (ImageButton) findViewById(R.id.chat_send_image_imagebutton);
         mSendMessageButton = (ImageButton) findViewById(R.id.chat_send_message_imagebutton);
         mMessageInputEdt = (EditText) findViewById(R.id.chat_input_message_edt);
+        mUserOnlineOrOffLineText = (TextView) findViewById(R.id.custom_user_last_online);
 
         mReceiverFullName = (TextView) findViewById(R.id.custom_profile_name);
         mReiceiverProfileImage = (CircleImageView) findViewById(R.id.custom_profile_image);
