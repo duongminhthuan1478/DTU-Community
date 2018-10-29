@@ -64,7 +64,11 @@
             android:name=".ChatActivity"
             android:parentActivityName=".MainActivity">
         </activity>
-        <activity android:name=".Post.MyPostAcitivity"
+        <activity
+            android:name=".Post.MyPostAcitivity"
+            android:parentActivityName=".MainActivity">
+        </activity>
+        <activity android:name=".Friends_RequestFriend.FriendsActivity"
             android:parentActivityName=".MainActivity">
         </activity>
     </application>

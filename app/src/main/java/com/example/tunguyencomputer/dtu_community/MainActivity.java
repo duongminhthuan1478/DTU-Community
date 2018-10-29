@@ -3,6 +3,8 @@ package com.example.tunguyencomputer.dtu_community;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -20,6 +22,8 @@ import android.widget.TextView;
 import com.example.tunguyencomputer.dtu_community.Account.LoginActivity;
 import com.example.tunguyencomputer.dtu_community.Account.SettingActivity;
 import com.example.tunguyencomputer.dtu_community.Account.SetupActivity;
+import com.example.tunguyencomputer.dtu_community.Friends_RequestFriend.FriendsActivity;
+import com.example.tunguyencomputer.dtu_community.Friends_RequestFriend.ListFriendFragment;
 import com.example.tunguyencomputer.dtu_community.Model.Post;
 import com.example.tunguyencomputer.dtu_community.Post.ClickPostActivity;
 import com.example.tunguyencomputer.dtu_community.Post.CommentsActivity;
@@ -178,6 +182,7 @@ public class MainActivity extends AppCompatActivity {
         displayAllUserPosts();
 
 
+
     } // onCreate();
 
 
@@ -253,7 +258,8 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case R.id.navigation_friends:
-                sendUserToFriendActivity();
+                //sendUserToFriendActivity();
+                sendUserToFriendsActivity();
                 break;
 
             case R.id.navigation_find_friends:
@@ -526,7 +532,18 @@ public class MainActivity extends AppCompatActivity {
         startActivity(Intent);
     }
     private void sendUserToFriendActivity() {
+//        ListFriendFragment listFriendFragment = new ListFriendFragment();
+//        FragmentManager manager = getSupportFragmentManager();
+//        FragmentTransaction transaction = manager.beginTransaction();
+//        transaction.replace(R.id.drawable_layout,listFriendFragment, listFriendFragment.getTag());
+//        transaction.addToBackStack(null);
+//        transaction.commit();
+
         Intent Intent = new Intent(MainActivity.this, FriendActivity.class);
+        startActivity(Intent);
+    }
+    private void sendUserToFriendsActivity() {
+        Intent Intent = new Intent(MainActivity.this, FriendsActivity.class);
         startActivity(Intent);
     }
 
