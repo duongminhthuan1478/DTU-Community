@@ -1,9 +1,8 @@
-package com.example.tunguyencomputer.dtu_community;
+package com.example.tunguyencomputer.dtu_community.Post;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.example.tunguyencomputer.dtu_community.R;
 import com.example.tunguyencomputer.dtu_community.Ultil.ShowToast;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;

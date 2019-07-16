@@ -86,6 +86,7 @@
         />
 
     <LinearLayout
+        android:id="@+id/icon_login_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -96,14 +97,14 @@
 
         <ImageView
             android:id="@+id/fb_signin_btn"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             android:src="@drawable/facebook"
             />
         <ImageView
             android:id="@+id/twitter_signin_btn"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:src="@drawable/twitter"
@@ -111,13 +112,27 @@
 
         <ImageView
             android:id="@+id/google_signin_btn"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             android:src="@drawable/google"
             />
 
+    </LinearLayout> <!-- Login icon -->
+    
+    <TextView
+        android:id="@+id/forget_password_link_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:text="Quên mật khẩu"
+        android:layout_marginTop="30dp"
+        android:textColor="@android:color/holo_red_light"
+        android:textStyle="bold"
+        android:layout_below="@+id/icon_login_layout"
+        android:textAlignment="center"
+        />
 
-    </LinearLayout>
 
 
 </RelativeLayout>

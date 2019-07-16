@@ -199,7 +199,7 @@ public class SetupActivity extends AppCompatActivity {
             map.put("username", userName);
             map.put("fullname", fullName);
             map.put("country", country);
-            map.put("status", "hey there, i am using poster social network, developed by Thuan");
+            map.put("status", "hey there, i am using poster social network, developed by RunNow Team");
             map.put("gender", "none");
             map.put("dob", "none");
             map.put("relationshipstatus", "none");

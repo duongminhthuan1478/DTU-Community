@@ -36,7 +36,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private Button mLoginButton;
     private EditText mUserEmail, mUserPassword;
-    private TextView mCreateAccountLink;
+    private TextView mCreateAccountLink, mForgetPasswordLink;
     private FirebaseAuth mAuth;
     private ImageView mGoogleSignInBtn;
 
@@ -44,6 +44,9 @@ public class LoginActivity extends AppCompatActivity {
 
 
     private GoogleApiClient mGoogleSignInClient;
+
+    /** Bien dung de xac nhan nguoi dung da verify email chua */
+    boolean emailAddressChecker = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +61,14 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        mForgetPasswordLink.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(LoginActivity.this, ResetPasswordActivity.class));
+            }
+        });
+
         mAuth = FirebaseAuth.getInstance();
 
         mLoginButton.setOnClickListener(new View.OnClickListener() {
@@ -128,6 +139,22 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+    /** Kiểm tra nếu người dùng đã xác thực gmail thì mới cho vào Mainactivity */
+    private void verifyEmailAddress(){
+        FirebaseUser user = mAuth.getCurrentUser();
+        // Kiểm tra đã xác thực chưa
+        emailAddressChecker = user.isEmailVerified();
+        if(emailAddressChecker){
+            // true
+            sendUserToMainActivity();
+
+        } else {
+            ShowToast.showToast(this, "Vui lòng đăng nhập gmail để xác thực tài khoản.");
+            //sau khi đăng ký người dùng
+            // đã signInWithEmailAndPassword nên phải signout ra nếu chưa xác thực
+            mAuth.signOut();
+        }
+    }
 
     private void findID() {
         mCreateAccountLink = (TextView) findViewById(R.id.register_account_link);
@@ -135,6 +162,7 @@ public class LoginActivity extends AppCompatActivity {
         mUserPassword = (EditText) findViewById(R.id.login_password);
         mLoginButton = (Button) findViewById(R.id.login_button);
         mGoogleSignInBtn = (ImageView) findViewById(R.id.google_signin_btn);
+        mForgetPasswordLink = (TextView) findViewById(R.id.forget_password_link_text);
 
     }
 
@@ -160,8 +188,8 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if(task.isSuccessful()){
-                            sendUserToMainActivity();
-                            ShowToast.showToast(getApplicationContext(),"Đăng nhập thành công!");
+                            // Xác thực email
+                            verifyEmailAddress();
                             // bỏ qua loading bar nếu task xử lý xong
                             mProgressDialogLoadingBar.dismiss();
                         }else {
